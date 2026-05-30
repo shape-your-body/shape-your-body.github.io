@@ -1,13 +1,252 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Anonymous Paper Website</title>
-</head>
-<body>
-  <h1>Anonymous Paper Website</h1>
-  <p>This is a temporary dummy page for the paper submission.</p>
-  <p>The final project page will be added later.</p>
-</body>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="description" content="Shape Your Body: Value Gradients for Multi-Embodiment Robot Design">
+        <meta name="keywords" content="robot co-design, multi-embodiment, value gradients, reinforcement learning, locomotion, URMA, morphology optimization">
+        <title>Shape Your Body</title>
+        <link rel="stylesheet" href="custom.css">
+        <link rel="icon" type="image/x-icon" href="./images/favicon.png">
+
+        <script type="importmap">
+            {
+                "imports": {
+                    "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+                    "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+                }
+            }
+        </script>
+
+        <script>
+            window.MathJax = {
+                tex: { inlineMath: [['\\(', '\\)'], ['$', '$']] },
+                svg: { fontCache: 'global' }
+            };
+        </script>
+        <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+    </head>
+
+    <body>
+        <h1 hidden></h1>
+
+        <script src="https://kit.fontawesome.com/02e2ed10b8.js" crossorigin="anonymous"></script>
+
+        <div>
+            <div id="title-container">
+                <p id="paper-title">
+                    <span class="title-gradient">Shape Your Body:</span><br>Value Gradients for Multi-Embodiment Robot Design
+                </p>
+
+                <p id="conference-name">Under Review</p>
+            </div>
+
+            <div id="social-buttons">
+                <a href="#" class="social-button social-button-disabled" aria-disabled="true" onclick="event.preventDefault();">
+                    <i class="fa fa-file-pdf"></i>
+                    <p>Paper (soon)</p>
+                </a>
+                <a href="#" class="social-button social-button-disabled" aria-disabled="true" onclick="event.preventDefault();">
+                    <i class="fa fa-github"></i>
+                    <p>Code (soon)</p>
+                </a>
+                <a href="#" class="social-button social-button-disabled" aria-disabled="true" onclick="event.preventDefault();">
+                    <i class="fa fa-youtube"></i>
+                    <p>Video (soon)</p>
+                </a>
+            </div>
+
+            <div id="tldr-container">
+                <p id="tldr-text"><span id="tldr-first">TLDR:</span> Train one multi-embodiment policy and value function, then design hundreds of new robots with value gradients in just minutes.</p>
+            </div>
+
+            <div class="section-container">
+                <p class="section-header">Try It Yourself</p>
+                <p class="section-text">
+                    Choose a robot and inspect how <span class="highlighted-text">Value-Gradient Design Search (VGDS)</span> changes its embodiment.
+                    Reference is the nominal URDF, and Co-Design shows the <span class="highlighted-text">optimized design from a perturbed start</span>.
+                    Use the sliders to explore the designs and control the policy live.
+                </p>
+                <div id="syb-demo">
+                    <div class="syb-controls">
+                        <div class="syb-control-row">
+                            <span class="syb-control-label">Robot</span>
+                            <div class="syb-tab-group" id="syb-robot-tabs">
+                                <button class="syb-tab" data-robot="unitree_go2">Unitree Go2</button>
+                                <button class="syb-tab active" data-robot="mit_humanoid">MIT Humanoid</button>
+                                <button class="syb-tab" data-robot="golem">Golem</button>
+                                <button class="syb-tab" data-robot="anymal_c">ANYmal C</button>
+                                <button class="syb-tab" data-robot="booster_t1">Booster T1</button>
+                                <button class="syb-tab" data-robot="mini_pi">Mini PI</button>
+                                <button class="syb-tab" data-robot="fourier_gr1t2">Fourier GR1-T2</button>
+                            </div>
+                        </div>
+                        <div class="syb-control-row">
+                            <span class="syb-control-label">Mode</span>
+                            <div class="syb-tab-group" id="syb-mode-tabs">
+                                <button class="syb-tab" data-mode="reference">Reference</button>
+                                <button class="syb-tab active" data-mode="codesign">Co-Design</button>
+                            </div>
+                        </div>
+                        <div class="syb-control-row">
+                            <span class="syb-control-label">Seed</span>
+                            <div class="syb-tab-group" id="syb-seed-tabs">
+                                <button class="syb-tab active" data-seed="0">0</button>
+                                <button class="syb-tab" data-seed="1">1</button>
+                                <button class="syb-tab" data-seed="2">2</button>
+                                <button class="syb-tab" data-seed="3">3</button>
+                                <button class="syb-tab" data-seed="4">4</button>
+                                <button class="syb-tab" data-seed="5">5</button>
+                                <button class="syb-tab" data-seed="6">6</button>
+                                <button class="syb-tab" data-seed="7">7</button>
+                                <button class="syb-tab" data-seed="8">8</button>
+                                <button class="syb-tab" data-seed="9">9</button>
+                            </div>
+                        </div>
+                        <div class="syb-control-row">
+                            <span class="syb-control-label">VGDS iter</span>
+                            <input type="range" id="syb-iter" min="0" max="50" value="0">
+                            <span id="syb-iter-value">iter 0 / 50</span>
+                        </div>
+                        <div class="syb-control-row">
+                            <span class="syb-control-label">Forward</span>
+                            <input type="range" id="syb-vx" min="-1" max="1" step="0.05" value="0.7">
+                            <span id="syb-vx-val">0.70</span>
+                        </div>
+                        <div class="syb-control-row">
+                            <span class="syb-control-label">Sideways</span>
+                            <input type="range" id="syb-vy" min="-1" max="1" step="0.05" value="0">
+                            <span id="syb-vy-val">0.00</span>
+                        </div>
+                        <div class="syb-control-row">
+                            <span class="syb-control-label">Turning</span>
+                            <input type="range" id="syb-vyaw" min="-1" max="1" step="0.05" value="0">
+                            <span id="syb-vyaw-val">0.00</span>
+                        </div>
+                        <div class="syb-control-row syb-control-buttons">
+                            <button class="syb-tab" id="syb-play">Pause</button>
+                            <button class="syb-tab" id="syb-reset">Reset pose</button>
+                            <button class="syb-tab" id="syb-follow">Follow camera</button>
+                        </div>
+                    </div>
+                    <div id="syb-canvas-wrap">
+                        <div id="syb-canvas"></div>
+                        <div id="syb-status">Loading…</div>
+                    </div>
+                    <p class="syb-note">
+                        Live browser demo: an URMA policy runs locally for the selected robot and design. Velocity commands steer the policy.
+                    </p>
+                </div>
+                <script type="module" src="demo/demo.js"></script>
+            </div>
+
+            <div class="section-container">
+                <p class="section-header">Overview</p>
+                <p class="section-text">
+                    <span class="highlighted-text">Can a value function trained across many robots become a reusable design model?</span>
+                    We train one embodiment-aware policy and value function across a broad robot distribution.
+                    After training, the value function is frozen and reused as a <span class="highlighted-text">differentiable surrogate</span>: new robots are optimized by following value gradients inside a soft trust region, over design spaces with <span class="highlighted-text">more than 1100 parameters</span>.
+                </p>
+                <img src="images/hero.png" alt="Shape Your Body method overview" class="section-image">
+            </div>
+
+            <div class="section-container">
+                <p class="section-header">Value-Gradient Design Search</p>
+                <p class="section-text">
+                    During training, each environment samples a robot design and keeps it fixed for the episode.
+                    A <span class="highlighted-text">Unified Robot Morphology Architecture (URMA)</span>-based policy and direct-design critic learn to control and evaluate the full design distribution with <span class="highlighted-text">PPO</span>.
+                    The critic receives embodiment information more directly than the standard URMA critic, which yields stronger design gradients.
+                </p>
+                <p class="section-text">
+                    After RL training, VGDS optimizes a normalized design vector \(f\) by <span class="highlighted-text">ascending the frozen critic's prediction</span> over a fixed state bank, <span class="highlighted-text">while staying close to a reference design</span> \(f_{\mathrm{ref}}\):
+                </p>
+                <div class="equation-box">
+                    \[
+                    \hat{J}_{\lambda}(f)
+                    =
+                    \frac{1}{M}\sum_{m=1}^{M}\bar{V}(s_m,\Phi(f))
+                    -
+                    \lambda\frac{\|f-f_{\mathrm{ref}}\|_2^2}{d_\mathrm{design}}
+                    \]
+                </div>
+                <p class="section-text">
+                    Each step follows the value gradient, applies the trust-region penalty, and clips the result back into the valid design space:
+                </p>
+                <div class="equation-box">
+                    \[
+                    f_{n+1}
+                    =
+                    \mathrm{clip}_{[-1,1]}
+                    \left(
+                    f_n + \mathrm{clip}_{[-\delta_{\max},\delta_{\max}]}
+                    \left[\Delta_{\mathrm{Adam}}\left(\nabla_f \hat{J}_{\lambda}(f_n)\right)\right]
+                    \right)
+                    \]
+                </div>
+                <p class="section-text">
+                    This gives a design loop based on one trained model that <span class="highlighted-text">can be batched and reused for many robots</span>.
+                </p>
+            </div>
+
+            <div class="section-container">
+                <p class="section-header">Multi-Embodiment Training Set</p>
+                <p class="section-text">
+                    Our largest training set contains <span class="highlighted-text">50 robots</span>: 15 quadrupeds, 31 bipeds and humanoids, and 4 hexapods.
+                    One URMA policy and critic are trained across all of them, with randomization over masses, inertias, geometry, joint limits, PD gains, and actuator properties.
+                    Each robot has <span class="highlighted-text">190 to 1177 continuous design parameters</span>.
+                </p>
+                <img src="images/robot_overview.png" alt="Overview of all 50 robots used in multi-embodiment training" class="section-image">
+            </div>
+
+            <div class="section-container">
+                <p class="section-header">Single-Robot Design</p>
+                <p class="section-text">
+                    First, we train one policy and critic per target robot, then optimize perturbed designs of that same robot.
+                    Across the Unitree Go2 quadruped, MIT Humanoid, and Golem hexapod, <span class="highlighted-text">VGDS matches or outperforms strong surrogate-search baselines</span>, including BO, CMA-ES, PSO, CEM, DE, ARS, TuRBO, and GC-PFO.
+                </p>
+                <img src="images/e1_ranking_return.png" alt="Single-robot design: mean return improvement per method" class="section-image">
+                <p class="section-text">
+                    <span class="highlighted-text">Against adapted RL-based co-design baselines</span>, VGDS reaches similar or slightly better final return.
+                    The main difference is cost: RL baselines train a new policy for every initial design, while VGDS trains once.
+                    After one <span class="highlighted-text">7–9 hour</span> training run, each additional design takes only <span class="highlighted-text">1–2 minutes</span> of search.
+                </p>
+                <img src="images/rl_vs_frozen_combined.png" alt="VGDS vs RL-based co-design baselines: return over steps and cumulative design time" class="section-image">
+            </div>
+
+            <div class="section-container">
+                <p class="section-header">Generalization Across Robots</p>
+                <p class="section-text">
+                    We then train reusable policies and critics on morphology-class robot sets, with the target robot held out, and on the full 50-robot set.
+                    With all 50 robots, <span class="highlighted-text">VGDS improves beyond the nominal URDF</span> for Unitree Go2 and MIT Humanoid and Golem.
+                    For Golem, the hexapod-only model performs best, likely because the full 50-robot set is dominated by quadrupeds and bipeds.
+                </p>
+                <img src="images/e2_e4_ranking_return.png" alt="Effect of training set: held-out morphology class vs full 50-robot set" class="section-image">
+            </div>
+
+            <div class="section-container">
+                <p class="section-header">Optimized Designs</p>
+                <p class="section-text">
+                    Starting from perturbed designs, VGDS reshapes the embodiment to improve the frozen policy's return.
+                    Here we show optimized Unitree Go2, MIT Humanoid, and Fourier GR1-T2 designs.
+                    For several tall humanoids, <span class="highlighted-text">VGDS reshapes robots to be smaller, wider, and more compact</span>, which appears to <span class="highlighted-text">improve stability</span>.
+                </p>
+                <img src="images/main_robots.png" alt="Optimized robot designs for Unitree Go2, MIT Humanoid, and Fourier GR1 T2" class="section-image">
+            </div>
+
+            <div class="section-container">
+                <p class="section-header">Design Analysis with Value Gradients</p>
+                <p class="section-text">
+                    The same value gradients also reveal <span class="highlighted-text">which design and control parameters matter</span>.
+                    We group the update f* − f<sub>ref</sub> by body part and parameter type, <span class="highlighted-text">turning the optimized design into a diagnostic tool</span>.
+                </p>
+                <p class="section-text">
+                    For the MIT Humanoid, the strongest changes are nominal joint positions, PD gains, and reduced foot size.
+                    For the Golem, VGDS reduces the action scale, lowers the P gain, and increases the D gain.
+                    For the Unitree Go2, the changes are more physical: rear-leg joint axes, foot geometry, and front hip/calf actuator velocity limits.
+                    The full improvement comes from coupled high-dimensional updates, but the <span class="highlighted-text">grouped analysis points to bottlenecks in the design that an engineer should inspect first</span>.
+                </p>
+                <img src="images/design_analysis_counterfactuals.png" alt="Counterfactual return when copying optimized parameter groups into the initial design" class="section-image">
+            </div>
+        </div>
+    </body>
 </html>
